@@ -33,93 +33,6 @@ class Parte:
         self.cy = cy
 
 
-def main():
-    vida = int(input())
-    primeira_vida = vida
-    vida_inicial = vida
-    aloy = Aloy(vida)
-    dados_flechas = input().split()
-    flechas = {}
-    dic_flechas_utilizadas = {}
-    i = 0
-    while i < len(dados_flechas):
-       flechas[dados_flechas[i]] = int(dados_flechas[i + 1])
-       dic_flechas_utilizadas[dados_flechas[i]] = 0
-       i += 2
-    numero_maquinas = int(input())    
-    maquinas_enfrentadas = 0
-    maquinas_enfrentadas_agora = 0
-    dic_criticos = {}
-    indice_combate = -1
-    dic_combates = {}
-    flechas_copia = flechas.copy()
-    lista_combates = []
-    while maquinas_enfrentadas < numero_maquinas:
-        if verifica_vida_aloy(aloy) == False:
-            break
-        if verifica_quantidade_flechas == False:
-            break
-        indice_combate += 1
-        input_maquinas_enfrentadas = int(input())
-        maquinas_enfrentadas += input_maquinas_enfrentadas
-        maquinas_enfrentadas_agora = input_maquinas_enfrentadas
-        lista_maquinas = []
-        contador_ataque = 0
-        lista_maquinas_derrotadas = []
-        for num_maquina in range(maquinas_enfrentadas_agora):
-            dic_criticos[num_maquina] = {}
-            informacoes_maquinas = input().split(' ')
-            maquina = Maquina(vida = int(informacoes_maquinas[0]), dano_ataque = int(informacoes_maquinas[1]), quantidade_partes = int(informacoes_maquinas[2]))
-            for _ in range(maquina.quantidade_partes):
-                parte_maquina = input().split(', ')
-                maquina.partes[parte_maquina[0]] = Parte(parte= parte_maquina[0], fraqueza= parte_maquina[1], dano_maximo= int(parte_maquina[2]), cx= int(parte_maquina[3]), cy= int(parte_maquina[4]))
-                dic_criticos[num_maquina][int(parte_maquina[3]), int(parte_maquina[4])] = 0
-            lista_maquinas.append(maquina)
-        while verifica_vida_maquinas(lista_maquinas) == True:
-            informacoes_alvo = input().split(', ')
-            if flechas_copia[informacoes_alvo[2]] > 0:
-                flechas_copia[informacoes_alvo[2]] -= 1
-            else:
-                saida_sem_flechas(indice_combate, aloy, vida_inicial, lista_maquinas_derrotadas)
-                break
-            unidade_alvo = int(informacoes_alvo[0])
-            dano_causado_aloy = calcula_dano(informacoes_alvo, lista_maquinas[unidade_alvo])
-            lista_maquinas[unidade_alvo].atualiza_vida(dano_causado_aloy)
-            if lista_maquinas[unidade_alvo].vida <= 0:
-                lista_maquinas_derrotadas.append(unidade_alvo)
-            dic_flechas_utilizadas[informacoes_alvo[2]] += 1
-            contador_ataque += 1
-            if contador_ataque == 3:
-                dano = calcula_dano_maquina(lista_maquinas)
-                if verifica_vida_maquinas(lista_maquinas) == True:
-                    aloy.atualiza_vida(dano)
-                    contador_ataque = 0
-            if (int(informacoes_alvo[3]), int(informacoes_alvo[4])) == (lista_maquinas[unidade_alvo].partes[informacoes_alvo[1]].cx, lista_maquinas[unidade_alvo].partes[informacoes_alvo[1]].cy):
-                dic_criticos[unidade_alvo][(int(informacoes_alvo[3]), int(informacoes_alvo[4]))] += 1
-            if verifica_vida_maquinas(lista_maquinas) == False:
-                dic_combates[f'combate {indice_combate}'] = 'vitória'
-                lista_combates.append('vitoria')
-                saida_vitoria(indice_combate, aloy, vida_inicial, lista_maquinas_derrotadas, flechas, dic_flechas_utilizadas, dic_criticos)
-            elif verifica_quantidade_flechas(flechas_copia) == False:
-                dic_combates[f'combate {indice_combate}'] = 'sem flechas'
-                lista_combates.append('sem flechas')
-                saida_sem_flechas(indice_combate, aloy, vida_inicial, lista_maquinas_derrotadas)
-            elif aloy.vida <= 0:
-                aloy.vida = max(aloy.vida, 0)
-                dic_combates[f'combate {indice_combate}'] = 'derrota'
-                lista_combates.append('derrota')
-                saida_derrota(indice_combate, aloy, vida_inicial, lista_maquinas_derrotadas)
-            if verifica_vida_aloy(aloy) == False:
-                break
-        for flecha in flechas:
-            dic_flechas_utilizadas[flecha] = 0
-        flechas_copia = flechas.copy()
-        dic_criticos = {}
-        if aloy.vida > 0:
-            vida_inicial = recupera_vida(aloy, vida_inicial, primeira_vida)
-    verifica_vitoria(lista_combates)
-
-
 def verifica_vida_maquinas(todas_maquinas):
     maquinas = False
     for maquina in todas_maquinas:
@@ -235,6 +148,92 @@ def saida_sem_flechas(indice_combate, aloy, vida_inicial, maquinas_derrotadas):
     print(f'Vida após o combate = {aloy.vida}')
     print('Aloy ficou sem flechas e recomeçará sua missão mais preparada.')
 
+def main():
+    vida = int(input())
+    primeira_vida = vida
+    vida_inicial = vida
+    aloy = Aloy(vida)
+    dados_flechas = input().split()
+    flechas = {}
+    dic_flechas_utilizadas = {}
+    i = 0
+    while i < len(dados_flechas):
+       flechas[dados_flechas[i]] = int(dados_flechas[i + 1])
+       dic_flechas_utilizadas[dados_flechas[i]] = 0
+       i += 2
+    numero_maquinas = int(input())    
+    maquinas_enfrentadas = 0
+    maquinas_enfrentadas_agora = 0
+    dic_criticos = {}
+    indice_combate = -1
+    dic_combates = {}
+    flechas_copia = flechas.copy()
+    lista_combates = []
+    while maquinas_enfrentadas < numero_maquinas:
+        if verifica_vida_aloy(aloy) == False:
+            break
+        if verifica_quantidade_flechas == False:
+            break
+        indice_combate += 1
+        input_maquinas_enfrentadas = int(input())
+        maquinas_enfrentadas += input_maquinas_enfrentadas
+        maquinas_enfrentadas_agora = input_maquinas_enfrentadas
+        lista_maquinas = []
+        contador_ataque = 0
+        lista_maquinas_derrotadas = []
+        for num_maquina in range(maquinas_enfrentadas_agora):
+            dic_criticos[num_maquina] = {}
+            informacoes_maquinas = input().split(' ')
+            maquina = Maquina(vida = int(informacoes_maquinas[0]), dano_ataque = int(informacoes_maquinas[1]), quantidade_partes = int(informacoes_maquinas[2]))
+            for _ in range(maquina.quantidade_partes):
+                parte_maquina = input().split(', ')
+                maquina.partes[parte_maquina[0]] = Parte(parte= parte_maquina[0], fraqueza= parte_maquina[1], dano_maximo= int(parte_maquina[2]), cx= int(parte_maquina[3]), cy= int(parte_maquina[4]))
+                dic_criticos[num_maquina][int(parte_maquina[3]), int(parte_maquina[4])] = 0
+            lista_maquinas.append(maquina)
+        while verifica_vida_maquinas(lista_maquinas) == True:
+            informacoes_alvo = input().split(', ')
+            if flechas_copia[informacoes_alvo[2]] > 0:
+                flechas_copia[informacoes_alvo[2]] -= 1
+            else:
+                saida_sem_flechas(indice_combate, aloy, vida_inicial, lista_maquinas_derrotadas)
+                break
+            unidade_alvo = int(informacoes_alvo[0])
+            dano_causado_aloy = calcula_dano(informacoes_alvo, lista_maquinas[unidade_alvo])
+            lista_maquinas[unidade_alvo].atualiza_vida(dano_causado_aloy)
+            if lista_maquinas[unidade_alvo].vida <= 0:
+                lista_maquinas_derrotadas.append(unidade_alvo)
+            dic_flechas_utilizadas[informacoes_alvo[2]] += 1
+            contador_ataque += 1
+            if contador_ataque == 3:
+                dano = calcula_dano_maquina(lista_maquinas)
+                if verifica_vida_maquinas(lista_maquinas) == True:
+                    aloy.atualiza_vida(dano)
+                    contador_ataque = 0
+            if (int(informacoes_alvo[3]), int(informacoes_alvo[4])) == (lista_maquinas[unidade_alvo].partes[informacoes_alvo[1]].cx, lista_maquinas[unidade_alvo].partes[informacoes_alvo[1]].cy):
+                dic_criticos[unidade_alvo][(int(informacoes_alvo[3]), int(informacoes_alvo[4]))] += 1
+            if verifica_vida_maquinas(lista_maquinas) == False:
+                dic_combates[f'combate {indice_combate}'] = 'vitória'
+                lista_combates.append('vitoria')
+                saida_vitoria(indice_combate, aloy, vida_inicial, lista_maquinas_derrotadas, flechas, dic_flechas_utilizadas, dic_criticos)
+            elif verifica_quantidade_flechas(flechas_copia) == False:
+                dic_combates[f'combate {indice_combate}'] = 'sem flechas'
+                lista_combates.append('sem flechas')
+                saida_sem_flechas(indice_combate, aloy, vida_inicial, lista_maquinas_derrotadas)
+            elif aloy.vida <= 0:
+                aloy.vida = max(aloy.vida, 0)
+                dic_combates[f'combate {indice_combate}'] = 'derrota'
+                lista_combates.append('derrota')
+                saida_derrota(indice_combate, aloy, vida_inicial, lista_maquinas_derrotadas)
+            if verifica_vida_aloy(aloy) == False:
+                break
+        for flecha in flechas:
+            dic_flechas_utilizadas[flecha] = 0
+        flechas_copia = flechas.copy()
+        dic_criticos = {}
+        if aloy.vida > 0:
+            vida_inicial = recupera_vida(aloy, vida_inicial, primeira_vida)
+    verifica_vitoria(lista_combates)
+
 
 if __name__ == '__main__':
     main()
@@ -266,6 +265,25 @@ manter seu estoque. Além disso, ao final de cada combate ela toma um remédio, 
 recupera seus pontos de vida em até 50% dos pontos de vida máximos, isto é, os
 pontos de vida de Aloy após se curar serão acrescidos de floor(0,5 × vida máxima), desde
 que não ultrapassem os pontos de vida máximos.
+
+A entrada do programa é constituída pelas seguintes informações, em ordem:
+1. Um inteiro A, correspondente aos pontos de vida máximos de Aloy;
+2. Uma linha contendo os tipos de flechas e suas respectivas quantidades separados por espaço. Ex: fogo 10 gelo 5 normal 8
+3. Um inteiro N contendo o número de monstros que Aloy enfrentará.
+4. Um inteiro U (1 ≤ U ≤ N), referente à quantidade de máquinas que enfrentará no combate. Se 2 ≤ U, serão repetidos os pontos 5 e 6 até a quantidade U.
+5. Para cada máquina, será dada uma linha contendo 3 inteiros, separados por espaço, contendo informações da U máquina. São essas informações: pontos de vida (Vi),
+pontos de ataque (Pi) e quantidade de partes (Qi).
+6. Em seguida, Qi linhas contendo o nome do componente (parte do corpo), a sua
+fraqueza, o dano máximo e as coordenadas cx e cy, tudo separado por vírgulas.
+7. Após isso, será dada uma linha contendo as seguintes informações separadas por vírgula: um inteiro K (0 ≤ K < U) representando a unidade alvo, uma string C (C ∊ Pi)
+com a parte do corpo que será o alvo, uma string referente ao tipo de flecha usado e dois inteiros, as coordenadas da flecha fx e fy. Essa entrada será dada até que os U
+inimigos tenham seus pontos de vida zerados, voltando ao ponto 4, ou até que os pontos de vida ou todas as flechas de Aloy cheguem a zero, finalizando o programa.
+
+Saída
+A cada combate, seu programa deve exibir o índice do mesmo e com quantos pontos de vida Aloy o iniciou. Quando uma máquina for derrotada, você deve exibir a mensagem
+“Máquina Ui derrotada”. Ao final de cada combate, você deve exibir os pontos de vida de Aloy, antes de se curar, a quantidade total de flechas de cada tipo utilizadas no
+combate, ordenadas pela ordem que foram declaradas (ponto 2 da entrada), uma por linha. Você deverá exibir também quais foram os pontos críticos acertados, conforme a ordem
+de declaração das máquinas e das partes (pontos 4 a 6 da entrada), e quantas vezes.
 
 Exemplo
 
